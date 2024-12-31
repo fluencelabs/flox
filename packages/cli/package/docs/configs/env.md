@@ -22,9 +22,10 @@ Deployed contract address overrides
 
 ### Properties
 
-| Property     | Type   | Required | Description |
-|--------------|--------|----------|-------------|
-| `diamond`    | string | No       |             |
-| `multicall3` | string | No       |             |
-| `usdc`       | string | No       |             |
+| Property        | Type   | Required | Description |
+|-----------------|--------|----------|-------------|
+| `balanceKeeper` | string | No       |             |
+| `diamond`       | string | No       |             |
+| `multicall3`    | string | No       |             |
+| `usdc`          | string | No       |             |
 

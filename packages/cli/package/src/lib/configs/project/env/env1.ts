@@ -85,6 +85,7 @@ export default {
           usdc: { type: "string", nullable: true },
           multicall3: { type: "string", nullable: true },
           diamond: { type: "string", nullable: true },
+          balanceKeeper: { type: "string", nullable: true },
         },
       },
       ipfsGateway: {

@@ -56,7 +56,7 @@
     "whatwg-url": "^14.0.0"
   },
   "dependencies": {
-    "@fluencelabs/deal-ts-clients": "0.22.1",
+    "@fluencelabs/deal-ts-clients": "0.23.3-balance-keeper-b7a5fa3-7336-1.0",
     "@kubernetes/client-node": "github:fluencelabs/kubernetes-client-javascript#e72ee00a52fec4eb4a8327632895d888ee504f4d",
     "@libp2p/crypto": "4.0.1",
     "@libp2p/peer-id-factory": "4.0.5",
