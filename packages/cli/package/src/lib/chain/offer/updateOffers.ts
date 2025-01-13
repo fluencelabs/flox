@@ -30,9 +30,9 @@ import {
 import { getContracts, signBatch, populateTx } from "../../dealClient.js";
 import { numToStr } from "../../helpers/typesafeStringify.js";
 import { splitErrorsAndResults } from "../../helpers/utils.js";
+import { deployManifests } from "../../manifestsDeploy.js";
 import { confirm } from "../../prompt.js";
 import { ensureFluenceEnv } from "../../resolveFluenceEnv.js";
-import type { Required } from "../../typeHelpers.js";
 import { uint8ArrayToPeerIdHexString } from "../conversions.js";
 import {
   peerIdHexStringToBase58String,
@@ -60,9 +60,14 @@ type PeersOnChain = {
   hexPeerId: string;
 }[];
 
-type Tx = { description?: string; tx: ReturnType<typeof populateTx> };
+type Tx = {
+  tx: ReturnType<typeof populateTx>;
+  description?: string;
+  peersToDeploy?: Array<string>;
+};
+
 type Txs = Tx[];
-type TxsWithDescription = Required<Tx>[];
+type TxsWithDescription = (Tx & { description: string })[];
 
 export async function updateOffers(flags: OffersArgs) {
   const offers = await resolveOffersFromProviderConfig(flags);
@@ -126,6 +131,25 @@ export async function updateOffers(flags: OffersArgs) {
     [firstUpdateOffersTx, ...restUpdateOffersTxs],
     assertProviderIsRegistered,
   );
+
+  const peersToDeploy = populatedTxs.flatMap(({ txs }) => {
+    return txs.flatMap(({ peersToDeploy }) => {
+      return peersToDeploy ?? [];
+    });
+  });
+
+  if (
+    peersToDeploy.length > 0 &&
+    (await confirm({
+      message: `Changes that you made require the following peers k8s manifests to be generated and deployed:\n${peersToDeploy.join("\n")}\nDo you want to do that now?`,
+      default: true,
+    }))
+  ) {
+    await deployManifests({
+      flags: { "peer-names": peersToDeploy.join(",") },
+      writeManifestFiles: true,
+    });
+  }
 }
 
 export async function removeOffers(flags: OffersArgs) {
@@ -256,7 +280,7 @@ function populateUpdateOffersTxs(offersFoundOnChain: OnChainOffer[]) {
         peersOnChain,
       );
 
-      const txs = (
+      const txs: Txs = (
         await Promise.all([
           populateDataCenterTx(offer),
           populateChangeResourceSupplyAndDetailsTx(offer),
@@ -268,7 +292,7 @@ function populateUpdateOffersTxs(offersFoundOnChain: OnChainOffer[]) {
           populateChangeResourcePriceTx(offer),
           populatePeerResourcesTxs(offer),
         ])
-      ).flat() satisfies Txs;
+      ).flat();
 
       return {
         offerName,
@@ -544,6 +568,7 @@ type ResourceSupplyUpdate = {
 
 async function createResourceSupplyAndDetailsUpdateTx(
   peerId: string,
+  peerName: string,
   { resourceType, onChainResource, configuredResource }: ResourceSupplyUpdate,
 ) {
   const txs: TxsWithDescription = [];
@@ -593,6 +618,7 @@ async function createResourceSupplyAndDetailsUpdateTx(
       onChainResource.resourceId,
       configuredResource.supply,
     ),
+    ...(resourceType === "ip" ? { peersToDeploy: [peerName] } : {}),
   });
 
   return txs;
@@ -658,7 +684,11 @@ async function populateChangeResourceSupplyAndDetailsTx({
     const [firstTx, ...restTxs] = (
       await Promise.all(
         resourceSupplyAndDetailsUpdates.map(async (update) => {
-          return createResourceSupplyAndDetailsUpdateTx(peer.id, update);
+          return createResourceSupplyAndDetailsUpdateTx(
+            peer.id,
+            configuredPeer.name,
+            update,
+          );
         }),
       )
     )

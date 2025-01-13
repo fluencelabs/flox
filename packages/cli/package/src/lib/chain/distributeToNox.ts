@@ -38,7 +38,7 @@ import { fltFormatWithSymbol, fltParse } from "./currencies.js";
 export async function distributeToPeer(
   flags: { amount?: string | undefined } & PeerAndOfferNameFlags,
 ) {
-  const computePeers = await resolveComputePeersByNames(flags);
+  const computePeers = await resolveComputePeersByNames({ flags });
 
   const amount =
     flags.amount ??
@@ -71,7 +71,7 @@ export async function withdrawFromPeer(
     amount?: string | undefined;
   } & PeerAndOfferNameFlags,
 ) {
-  const computePeers = await resolveComputePeersByNames(flags);
+  const computePeers = await resolveComputePeersByNames({ flags });
 
   const amount =
     flags.amount ??

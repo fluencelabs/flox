@@ -243,11 +243,11 @@ async function getCommitmentsIds(
     );
   }
 
-  return getComputePeersWithCCIds(await resolveComputePeersByNames(flags));
+  return getComputePeersWithCCIds(await resolveComputePeersByNames({ flags }));
 }
 
 export async function createCommitments(flags: PeerAndOfferNameFlags) {
-  const computePeers = await resolveComputePeersByNames(flags);
+  const computePeers = await resolveComputePeersByNames({ flags });
   const { contracts } = await getContracts();
   const precision = await contracts.diamond.precision();
   const { ZeroAddress } = await import("ethers");

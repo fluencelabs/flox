@@ -33,10 +33,14 @@ import {
 import { commaSepStrToArr, splitErrorsAndResults } from "./helpers/utils.js";
 import { checkboxes } from "./prompt.js";
 
-export async function resolveComputePeersByNames(
-  flags: PeerAndOfferNameFlags,
-): Promise<[ResolvedComputePeer, ...ResolvedComputePeer[]]> {
-  const computePeers = await ensureComputerPeerConfigs();
+export async function resolveComputePeersByNames({
+  flags,
+  writeManifestFiles = false,
+}: {
+  flags: PeerAndOfferNameFlags;
+  writeManifestFiles?: boolean;
+}): Promise<[ResolvedComputePeer, ...ResolvedComputePeer[]]> {
+  const computePeers = await ensureComputerPeerConfigs({ writeManifestFiles });
 
   if (flags[PEER_NAMES_FLAG_NAME] === ALL_FLAG_VALUE) {
     const [firstComputePeer, ...restComputePeers] = computePeers;

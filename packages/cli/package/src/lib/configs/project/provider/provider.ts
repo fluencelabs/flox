@@ -42,11 +42,11 @@ import {
 import { resolveDeployment } from "../../../dealClient.js";
 import { ensureChainEnv } from "../../../ensureChainNetwork.js";
 import { type ProviderConfigArgs } from "../../../generateUserProviderConfig.js";
-import { genManifest } from "../../../genManifest.js";
 import { getPeerIdFromSecretKey } from "../../../helpers/getPeerIdFromSecretKey.js";
 import { numToStr } from "../../../helpers/typesafeStringify.js";
 import { pathExists, splitErrorsAndResults } from "../../../helpers/utils.js";
 import { genSecretKeyOrReturnExisting } from "../../../keyPairs.js";
+import { genManifest } from "../../../manifestsGen.js";
 import {
   getProviderConfigPath,
   getFluenceDir,

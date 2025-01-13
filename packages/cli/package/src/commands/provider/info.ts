@@ -47,7 +47,7 @@ export default class Info extends BaseCommand<typeof Info> {
 
   async run(): Promise<void> {
     const { flags } = await initCli(this, await this.parse(Info));
-    const computePeers = await resolveComputePeersByNames(flags);
+    const computePeers = await resolveComputePeersByNames({ flags });
 
     const infoToPrint = {
       ...(await formatProvidersInfo(
