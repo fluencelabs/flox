@@ -1,6 +1,6 @@
 {
   "name": "@fluencelabs/cli",
-  "version": "0.24.0",
+  "version": "0.24.1",
   "description": "CLI for working with Fluence network",
   "keywords": [
     "fluence",
