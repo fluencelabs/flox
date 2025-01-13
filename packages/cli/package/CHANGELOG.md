@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.24.1](https://github.com/fluencelabs/cli/compare/cli-v0.24.0...cli-v0.24.1) (2025-01-13)
+
+
+### Features
+
+* support data centers ([#1091](https://github.com/fluencelabs/cli/issues/1091)) ([651f830](https://github.com/fluencelabs/cli/commit/651f8309780649782a1446d66ad3a5076c84b95d))
+* write manifest files on gen command only, rename end to stop ([#1089](https://github.com/fluencelabs/cli/issues/1089)) ([26dd8b7](https://github.com/fluencelabs/cli/commit/26dd8b7e1136d7e39d78016a265211551b884f72))
+
 ## [0.24.0](https://github.com/fluencelabs/cli/compare/cli-v0.23.0...cli-v0.24.0) (2025-01-08)
 
 
