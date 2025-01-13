@@ -1964,7 +1964,7 @@ __metadata:
   dependencies:
     "@actions/core": "npm:1.11.1"
     "@aws-sdk/lib-storage": "npm:^3.501.0"
-    "@fluencelabs/deal-ts-clients": "npm:0.23.2-add-dc-to-subgraph-afdd94a-7473-1.0"
+    "@fluencelabs/deal-ts-clients": "npm:0.23.2-vesting-duration-fix-81617f8-7109-2.0"
     "@graphql-codegen/cli": "npm:^5.0.3"
     "@graphql-codegen/typescript": "npm:^4.1.1"
     "@graphql-codegen/typescript-graphql-request": "npm:^6.2.0"
@@ -2038,9 +2038,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fluencelabs/deal-ts-clients@npm:0.23.2-add-dc-to-subgraph-afdd94a-7473-1.0":
-  version: 0.23.2-add-dc-to-subgraph-afdd94a-7473-1.0
-  resolution: "@fluencelabs/deal-ts-clients@npm:0.23.2-add-dc-to-subgraph-afdd94a-7473-1.0"
+"@fluencelabs/deal-ts-clients@npm:0.23.2-vesting-duration-fix-81617f8-7109-2.0":
+  version: 0.23.2-vesting-duration-fix-81617f8-7109-2.0
+  resolution: "@fluencelabs/deal-ts-clients@npm:0.23.2-vesting-duration-fix-81617f8-7109-2.0"
   dependencies:
     "@graphql-typed-document-node/core": "npm:^3.2.0"
     debug: "npm:^4.3.4"
@@ -2052,7 +2052,7 @@ __metadata:
     graphql-tag: "npm:^2.12.6"
     ipfs-http-client: "npm:^60.0.1"
     multiformats: "npm:^13.0.1"
-  checksum: 10c0/539d77261a226fb09fb02c671fb221a31de4947988997b0a355479cf1f84358ecdacc14e4bb6e56c5d8d8ba34715f592b738ee215d205cb7100fb13f70785353
+  checksum: 10c0/7d9b168bc7f004245df353d1aa20bd392556a7f5db0f627e816d66017858270e1e3f1ec11fb85e087a3b0783c06132ba9d3970efb3c1b58a413df143bfbd4447
   languageName: node
   linkType: hard
 

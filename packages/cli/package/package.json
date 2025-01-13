@@ -56,7 +56,7 @@
     "whatwg-url": "^14.0.0"
   },
   "dependencies": {
-    "@fluencelabs/deal-ts-clients": "0.23.2-add-dc-to-subgraph-afdd94a-7473-1.0",
+    "@fluencelabs/deal-ts-clients": "0.23.2-vesting-duration-fix-81617f8-7109-2.0",
     "@kubernetes/client-node": "github:fluencelabs/kubernetes-client-javascript#e72ee00a52fec4eb4a8327632895d888ee504f4d",
     "@libp2p/crypto": "4.0.1",
     "@libp2p/peer-id-factory": "4.0.5",
