@@ -250,8 +250,6 @@ export const RECOMMENDED_GITIGNORE_CONTENT = `.idea
 export const IS_TTY = Boolean(process.stdout.isTTY && process.stdin.isTTY);
 export const IS_DEVELOPMENT = process.env["NODE_ENV"] === "development";
 
-export const DEFAULT_OFFER_NAME = "defaultOffer";
-
 export const DEFAULT_CC_STAKER_REWARD = 20;
 export const DEFAULT_CC_DURATION = "100 days";
 export const DURATION_EXAMPLE =

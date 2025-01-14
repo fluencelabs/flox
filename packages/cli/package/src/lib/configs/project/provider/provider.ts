@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import assert from "assert";
 import { writeFile } from "fs/promises";
 import { join } from "path";
 
@@ -30,7 +29,6 @@ import {
 import { hexStringToUTF8ToBase64String } from "../../../chain/conversions.js";
 import { commandObj, isInteractive } from "../../../commandObj.js";
 import {
-  DEFAULT_OFFER_NAME,
   PROVIDER_CONFIG_FULL_FILE_NAME,
   DEFAULT_CC_DURATION,
   DEFAULT_CC_STAKER_REWARD,
@@ -64,19 +62,17 @@ import configOptions1, { type Config as Config1 } from "./provider1.js";
 import configOptions2, { type Config as Config2 } from "./provider2.js";
 import configOptions3, { type Config as Config3 } from "./provider3.js";
 import configOptions4, {
+  resourceNameToId,
   type Config as Config4,
   type ComputePeer,
-  defaultComputePeerConfig,
+  getDefaultComputePeerConfig,
   getDefaultResources,
   getDefaultOfferResources,
   type ResourceType,
-  mergeCPUResources,
-  mergeRAMResources,
-  mergeStorageResources,
-  mergeIPResources,
-  mergeBandwidthResources,
-  getDefaultDataCenters,
-  DATA_CENTER_NAME,
+  mergeCPUResourceDetails,
+  mergeRAMResourceDetails,
+  mergeStorageResourceDetails,
+  getDefaultDataCenterName,
 } from "./provider4.js";
 
 export const options: InitConfigOptions<
@@ -128,7 +124,7 @@ function getDefault(args: ProviderConfigArgs) {
 
       computePeerEntries.push([
         name,
-        defaultComputePeerConfig({
+        await getDefaultComputePeerConfig({
           computeUnits: DEFAULT_NUMBER_OF_COMPUTE_UNITS_ON_PEER,
           name,
           index,
@@ -137,17 +133,17 @@ function getDefault(args: ProviderConfigArgs) {
     }
 
     const computePeers = Object.fromEntries(computePeerEntries);
+    const dataCenterName = await getDefaultDataCenterName();
 
     return {
       providerName: "defaultProvider",
-      dataCenters: await getDefaultDataCenters(),
       resources: await getDefaultResources(),
       computePeers,
       offers: {
-        [DEFAULT_OFFER_NAME]: {
-          dataCenterName: DATA_CENTER_NAME,
+        [`${dataCenterName}-Offer`]: {
+          dataCenterName,
           computePeers: Object.keys(computePeers),
-          resourcePrices: getDefaultOfferResources(),
+          resourcePrices: await getDefaultOfferResources(),
         },
       },
       capacityCommitments: Object.fromEntries(
@@ -338,59 +334,48 @@ export async function ensureComputerPeerConfigs({
         const cpu =
           providerConfig.resources.cpu[computePeer.resources.cpu.name];
 
-        assert(
-          cpu !== undefined,
-          `Unreachable. cpu must be defined for ${computePeerName} because it is validated in the config`,
-        );
-
         const ram =
           providerConfig.resources.ram[computePeer.resources.ram.name];
 
-        assert(
-          ram !== undefined,
-          `Unreachable. ram must be defined for ${computePeerName} because it is validated in the config`,
-        );
+        const storages = await Promise.all(
+          computePeer.resources.storage.map(async (s) => {
+            const storage = providerConfig.resources.storage[s.name];
 
-        const storages = computePeer.resources.storage.map((s) => {
-          const storage = providerConfig.resources.storage[s.name];
-
-          assert(
-            storage !== undefined,
-            `Unreachable. storage must be defined for ${computePeerName} because it is validated in the config`,
-          );
-
-          return mergeStorageResources(storage, s);
-        });
-
-        const ip = providerConfig.resources.ip[computePeer.resources.ip.name];
-
-        assert(
-          ip !== undefined,
-          `Unreachable. ip must be defined for ${computePeerName} because it is validated in the config`,
-        );
-
-        const bandwidth =
-          providerConfig.resources.bandwidth[
-            computePeer.resources.bandwidth.name
-          ];
-
-        assert(
-          bandwidth !== undefined,
-          `Unreachable. bandwidth must be defined for ${computePeerName} because it is validated in the config`,
+            return {
+              ...s,
+              id: await resourceNameToId("storage", s.name),
+              details: mergeStorageResourceDetails(storage, s),
+            };
+          }),
         );
 
         const resourcesWithIds = {
-          cpu: mergeCPUResources(cpu, computePeer.resources.cpu),
-          ram: mergeRAMResources(ram, computePeer.resources.ram),
+          cpu: {
+            ...computePeer.resources.cpu,
+            id: await resourceNameToId("cpu", computePeer.resources.cpu.name),
+            details: mergeCPUResourceDetails(cpu, computePeer.resources.cpu),
+          },
+          ram: {
+            ...computePeer.resources.ram,
+            id: await resourceNameToId("ram", computePeer.resources.ram.name),
+            details: mergeRAMResourceDetails(ram, computePeer.resources.ram),
+          },
           storage: storages,
-          ip: mergeIPResources(ip, computePeer.resources.ip),
-          bandwidth: mergeBandwidthResources(
-            bandwidth,
-            computePeer.resources.bandwidth,
-          ),
+          bandwidth: {
+            ...computePeer.resources.bandwidth,
+            id: await resourceNameToId(
+              "bandwidth",
+              computePeer.resources.bandwidth.name,
+            ),
+          },
+          ip: {
+            ...computePeer.resources.ip,
+            id: await resourceNameToId("ip", computePeer.resources.ip.name),
+          },
         } as const satisfies Record<
           ResourceType,
-          { id: string } | Array<{ id: string }>
+          | { id: string; details?: unknown }
+          | Array<{ id: string; details: unknown }>
         >;
 
         return {

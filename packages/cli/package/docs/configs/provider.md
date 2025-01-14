@@ -4,15 +4,14 @@ Defines provider configuration
 
 ## Properties
 
-| Property              | Type                           | Required | Description                                                                |
-|-----------------------|--------------------------------|----------|----------------------------------------------------------------------------|
-| `capacityCommitments` | [object](#capacitycommitments) | **Yes**  | A map with computePeer names as keys and capacity commitments as values    |
-| `computePeers`        | [object](#computepeers)        | **Yes**  | A map with compute peer names as keys and compute peer configs as values   |
-| `dataCenters`         | [object](#datacenters)         | **Yes**  | A map with data center names as keys and data center IDs as values         |
-| `offers`              | [object](#offers)              | **Yes**  | A map with offer names as keys and offer configs as values                 |
-| `providerName`        | string                         | **Yes**  | Provider name. Must not be empty                                           |
-| `version`             | integer                        | **Yes**  | Config version                                                             |
-| `resources`           | [object](#resources)           | No       | A map with resource type names as keys and resource names object as values |
+| Property              | Type                           | Required | Description                                                                  |
+|-----------------------|--------------------------------|----------|------------------------------------------------------------------------------|
+| `capacityCommitments` | [object](#capacitycommitments) | **Yes**  | A map with computePeer names as keys and capacity commitments as values      |
+| `computePeers`        | [object](#computepeers)        | **Yes**  | A map with compute peer names as keys and compute peer configs as values     |
+| `offers`              | [object](#offers)              | **Yes**  | A map with offer names as keys and offer configs as values                   |
+| `providerName`        | string                         | **Yes**  | Provider name. Must not be empty                                             |
+| `version`             | integer                        | **Yes**  | Config version                                                               |
+| `resources`           | [object](#resources)           | No       | A map with resource type names as keys and resource details object as values |
 
 ## capacityCommitments
 
@@ -171,27 +170,17 @@ Override or extend Storage details not related to matching but visible to the us
 | `model`                | string  | No       |             |
 | `sequentialWriteSpeed` | integer | No       |             |
 
-## dataCenters
-
-A map with data center names as keys and data center IDs as values
-
-### Properties
-
-| Property           | Type   | Required | Description |
-|--------------------|--------|----------|-------------|
-| `<dataCenterName>` | string | No       |             |
-
 ## offers
 
 A map with offer names as keys and offer configs as values
 
 ### Properties
 
-| Property | Type             | Required | Description              |
-|----------|------------------|----------|--------------------------|
-| `Offer`  | [object](#offer) | No       | Defines a provider offer |
+| Property    | Type                 | Required | Description              |
+|-------------|----------------------|----------|--------------------------|
+| `offerName` | [object](#offername) | No       | Defines a provider offer |
 
-### Offer
+### offerName
 
 Defines a provider offer
 
@@ -211,160 +200,106 @@ Resource prices for the offer
 
 ##### Properties
 
-| Property    | Type                 | Required | Description                                                                                            |
-|-------------|----------------------|----------|--------------------------------------------------------------------------------------------------------|
-| `bandwidth` | [object](#bandwidth) | **Yes**  | A map with bandwidth resource names as keys and prices in USDC per Megabit (Mb) of bandwidth as values |
-| `cpu`       | [object](#cpu)       | **Yes**  | A map with CPU resource names as keys and prices in USDC per physical core as values                   |
-| `ip`        | [object](#ip)        | **Yes**  | A map with IP resource names as keys and prices in USDC per 1 IPv4 address as values                   |
-| `ram`       | [object](#ram)       | **Yes**  | A map with RAM resource names as keys and prices in USDC per Mebibyte (MiB) of RAM as values           |
-| `storage`   | [object](#storage)   | **Yes**  | A map with storage resource names as keys and prices in USDC per Mebibyte (MiB) of storage as values   |
+| Property    | Type                 | Required | Description                                                                               |
+|-------------|----------------------|----------|-------------------------------------------------------------------------------------------|
+| `bandwidth` | [object](#bandwidth) | **Yes**  | A map with bandwidth resource names as keys and prices in the following format as values: |
+|             |                      |          | <positive-number> USDC/Mb                                                                 |
+| `cpu`       | [object](#cpu)       | **Yes**  | A map with CPU resource names as keys and prices in the following format as values:       |
+|             |                      |          | <positive-number> USDC/PhysicalCore                                                       |
+| `ip`        | [object](#ip)        | **Yes**  | A map with IP resource names as keys and prices in the following format as values:        |
+|             |                      |          | <positive-number> USDC/IP                                                                 |
+| `ram`       | [object](#ram)       | **Yes**  | A map with RAM resource names as keys and prices in the following format as values:       |
+|             |                      |          | <positive-number> USDC/MiB                                                                |
+| `storage`   | [object](#storage)   | **Yes**  | A map with storage resource names as keys and prices in the following format as values:   |
+|             |                      |          | <positive-number> USDC/MiB                                                                |
 
 ##### bandwidth
 
-A map with bandwidth resource names as keys and prices in USDC per Megabit (Mb) of bandwidth as values
+A map with bandwidth resource names as keys and prices in the following format as values:
+<positive-number> USDC/Mb
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 
 ##### cpu
 
-A map with CPU resource names as keys and prices in USDC per physical core as values
+A map with CPU resource names as keys and prices in the following format as values:
+<positive-number> USDC/PhysicalCore
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 
 ##### ip
 
-A map with IP resource names as keys and prices in USDC per 1 IPv4 address as values
+A map with IP resource names as keys and prices in the following format as values:
+<positive-number> USDC/IP
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 
 ##### ram
 
-A map with RAM resource names as keys and prices in USDC per Mebibyte (MiB) of RAM as values
+A map with RAM resource names as keys and prices in the following format as values:
+<positive-number> USDC/MiB
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 
 ##### storage
 
-A map with storage resource names as keys and prices in USDC per Mebibyte (MiB) of storage as values
+A map with storage resource names as keys and prices in the following format as values:
+<positive-number> USDC/MiB
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 
 ## resources
 
-A map with resource type names as keys and resource names object as values
+A map with resource type names as keys and resource details object as values
 
 ### Properties
 
-| Property    | Type                 | Required | Description                                                                          |
-|-------------|----------------------|----------|--------------------------------------------------------------------------------------|
-| `bandwidth` | [object](#bandwidth) | No       | A map with bandwidth resource names as keys and bandwidth resource objects as values |
-| `cpu`       | [object](#cpu)       | No       | A map with CPU resource names as keys and CPU resource objects as values             |
-| `ip`        | [object](#ip)        | No       | A map with IP resource names as keys and IP resource objects as values               |
-| `ram`       | [object](#ram)       | No       | A map with RAM resource names as keys and RAM resource objects as values             |
-| `storage`   | [object](#storage)   | No       | A map with storage resource names as keys and storage resource objects as values     |
-
-### bandwidth
-
-A map with bandwidth resource names as keys and bandwidth resource objects as values
-
-#### Properties
-
-| Property                | Type                             | Required | Description                  |
-|-------------------------|----------------------------------|----------|------------------------------|
-| `bandwidthResourceName` | [object](#bandwidthresourcename) | No       | Defines a bandwidth resource |
-
-#### bandwidthResourceName
-
-Defines a bandwidth resource
-
-##### Properties
-
-| Property | Type   | Required | Description                 |
-|----------|--------|----------|-----------------------------|
-| `id`     | string | **Yes**  | On-chain ID of the resource |
+| Property  | Type               | Required | Description                                                                              |
+|-----------|--------------------|----------|------------------------------------------------------------------------------------------|
+| `cpu`     | [object](#cpu)     | No       | A map with CPU resource names as keys and CPU resource details objects as values         |
+| `ram`     | [object](#ram)     | No       | A map with RAM resource names as keys and RAM resource details objects as values         |
+| `storage` | [object](#storage) | No       | A map with storage resource names as keys and storage resource details objects as values |
 
 ### cpu
 
-A map with CPU resource names as keys and CPU resource objects as values
+A map with CPU resource names as keys and CPU resource details objects as values
 
 #### Properties
 
-| Property          | Type                       | Required | Description            |
-|-------------------|----------------------------|----------|------------------------|
-| `cpuResourceName` | [object](#cpuresourcename) | No       | Defines a CPU resource |
+| Property          | Type                       | Required | Description                                                                          |
+|-------------------|----------------------------|----------|--------------------------------------------------------------------------------------|
+| `cpuResourceName` | [object](#cpuresourcename) | No       | CPU details not related to matching but visible to the user for information purposes |
 
 #### cpuResourceName
 
-Defines a CPU resource
-
-##### Properties
-
-| Property  | Type               | Required | Description                                                                          |
-|-----------|--------------------|----------|--------------------------------------------------------------------------------------|
-| `id`      | string             | **Yes**  | On-chain ID of the resource                                                          |
-| `details` | [object](#details) | No       | CPU details not related to matching but visible to the user for information purposes |
-
-##### details
-
 CPU details not related to matching but visible to the user for information purposes
 
-###### Properties
+##### Properties
 
 | Property | Type   | Required | Description |
 |----------|--------|----------|-------------|
 | `model`  | string | No       |             |
 
-### ip
-
-A map with IP resource names as keys and IP resource objects as values
-
-#### Properties
-
-| Property         | Type                      | Required | Description            |
-|------------------|---------------------------|----------|------------------------|
-| `ipResourceName` | [object](#ipresourcename) | No       | Defines an IP resource |
-
-#### ipResourceName
-
-Defines an IP resource
-
-##### Properties
-
-| Property | Type   | Required | Description                 |
-|----------|--------|----------|-----------------------------|
-| `id`     | string | **Yes**  | On-chain ID of the resource |
-
 ### ram
 
-A map with RAM resource names as keys and RAM resource objects as values
+A map with RAM resource names as keys and RAM resource details objects as values
 
 #### Properties
 
-| Property          | Type                       | Required | Description            |
-|-------------------|----------------------------|----------|------------------------|
-| `ramResourceName` | [object](#ramresourcename) | No       | Defines a RAM resource |
+| Property          | Type                       | Required | Description                                                                          |
+|-------------------|----------------------------|----------|--------------------------------------------------------------------------------------|
+| `ramResourceName` | [object](#ramresourcename) | No       | RAM details not related to matching but visible to the user for information purposes |
 
 #### ramResourceName
 
-Defines a RAM resource
-
-##### Properties
-
-| Property  | Type               | Required | Description                                                                          |
-|-----------|--------------------|----------|--------------------------------------------------------------------------------------|
-| `id`      | string             | **Yes**  | On-chain ID of the resource                                                          |
-| `details` | [object](#details) | No       | RAM details not related to matching but visible to the user for information purposes |
-
-##### details
-
 RAM details not related to matching but visible to the user for information purposes
 
-###### Properties
+##### Properties
 
 | Property       | Type    | Required | Description |
 |----------------|---------|----------|-------------|
@@ -375,30 +310,19 @@ RAM details not related to matching but visible to the user for information purp
 
 ### storage
 
-A map with storage resource names as keys and storage resource objects as values
+A map with storage resource names as keys and storage resource details objects as values
 
 #### Properties
 
-| Property              | Type                           | Required | Description                |
-|-----------------------|--------------------------------|----------|----------------------------|
-| `storageResourceName` | [object](#storageresourcename) | No       | Defines a storage resource |
+| Property              | Type                           | Required | Description                                                                              |
+|-----------------------|--------------------------------|----------|------------------------------------------------------------------------------------------|
+| `storageResourceName` | [object](#storageresourcename) | No       | Storage details not related to matching but visible to the user for information purposes |
 
 #### storageResourceName
 
-Defines a storage resource
-
-##### Properties
-
-| Property  | Type               | Required | Description                                                                              |
-|-----------|--------------------|----------|------------------------------------------------------------------------------------------|
-| `id`      | string             | **Yes**  | On-chain ID of the resource                                                              |
-| `details` | [object](#details) | No       | Storage details not related to matching but visible to the user for information purposes |
-
-##### details
-
 Storage details not related to matching but visible to the user for information purposes
 
-###### Properties
+##### Properties
 
 | Property               | Type    | Required | Description |
 |------------------------|---------|----------|-------------|

@@ -25,7 +25,6 @@ import { commandObj } from "../../commandObj.js";
 import {
   ensureComputerPeerConfigs,
   ensureReadonlyProviderConfig,
-  type ProviderConfig,
 } from "../../configs/project/provider/provider.js";
 import {
   ipSupplyToIndividualIPs,
@@ -35,6 +34,9 @@ import {
   OnChainResourceType,
   isOnChainResourceType,
   onChainResourceTypeToResourceType,
+  getDataCentersFromChain,
+  resourcePriceToBigInt,
+  getResourcesFromChain,
 } from "../../configs/project/provider/provider4.js";
 import {
   initNewProviderArtifactsConfig,
@@ -46,6 +48,7 @@ import {
   OFFER_FLAG_NAME,
   OFFER_IDS_FLAG_NAME,
   PROVIDER_ARTIFACTS_CONFIG_FULL_FILE_NAME,
+  PROVIDER_CONFIG_FULL_FILE_NAME,
   VCPU_PER_CU,
 } from "../../const.js";
 import {
@@ -72,7 +75,7 @@ import {
   resourceSupplyFromChainToConfig,
   resourceSupplyFromConfigToChain,
 } from "../conversions.js";
-import { ptFormatWithSymbol, ptParse } from "../currencies.js";
+import { ptFormatWithSymbol } from "../currencies.js";
 import { assertProviderIsRegistered } from "../providerInfo.js";
 
 const MARKET_OFFER_REGISTERED_EVENT_NAME = "MarketOfferRegistered";
@@ -316,7 +319,7 @@ function setCPUSupplyForCP(
     unitIds: Uint8Array[];
     resourcesByType: {
       readonly cpu: {
-        readonly resourceId: `0x${string}`;
+        readonly resourceId: string;
         readonly details: string;
         readonly name: string;
         readonly supply: number;
@@ -347,7 +350,7 @@ function setCPUSupplyForCP(
 
 function setCPUSupply(
   cpu: {
-    readonly resourceId: `0x${string}`;
+    readonly resourceId: string;
     readonly details: string;
     readonly name: string;
     readonly supply: number;
@@ -406,7 +409,7 @@ function formatOfferResourcePrice(
   offer: {
     resourcePricesWithIds: Record<
       ResourceType,
-      Array<{ resourceId: `0x${string}`; price: bigint }>
+      Array<{ resourceId: string; price: bigint }>
     >;
   },
 ) {
@@ -429,7 +432,7 @@ async function formatOfferResource(
     supply,
     details,
   }: {
-    resourceId: `0x${string}`;
+    resourceId: string;
     supply: number;
     details: string;
   },
@@ -848,14 +851,13 @@ export async function resolveOffersFromProviderConfig(
           "Data center is always saved for offer on-chain when offer is created. Try waiting for indexer to index the data center",
         );
 
-        const { id: dataCenterId } = dataCenter;
-        assertIsHex(dataCenterId, "Data center ID must be a hex string");
+        assertIsHex(dataCenter.id, "Data center ID must be a hex string");
 
         return {
           offerName: `Offer ${offerId}`,
           computePeersFromProviderConfig,
           offerId,
-          dataCenter: { id: dataCenterId, name: dataCenterId },
+          dataCenter: { name: dataCenter.id, ...dataCenter },
           minProtocolVersion: Number(
             protocolVersionsFromChain.minProtocolVersion,
           ),
@@ -947,7 +949,7 @@ export type EnsureOfferConfig = Awaited<
 >[number];
 
 export type OnChainResource = {
-  resourceId: `0x${string}`;
+  resourceId: string;
   supply: number;
   details: string;
 };
@@ -957,7 +959,7 @@ type ResourcePricesWithIds = Record<
   {
     ty: OnChainResourceType;
     resourceType: ResourceType;
-    resourceId: `0x${string}`;
+    resourceId: string;
     resourceName: string;
     price: bigint;
   }[]
@@ -1010,7 +1012,7 @@ async function ensureOfferConfigs() {
                   supply: (
                     await resourceSupplyFromConfigToChain("cpu", cpu.supply)
                   ).supply,
-                  resourceId: `0x${cpuId}`,
+                  resourceId: cpuId,
                   details: JSON.stringify(cpu.details),
                 },
                 ram: {
@@ -1021,7 +1023,7 @@ async function ensureOfferConfigs() {
                       xbytes.parseSize(ram.supply),
                     )
                   ).supply,
-                  resourceId: `0x${ramId}`,
+                  resourceId: ramId,
                   details: JSON.stringify(ram.details),
                 },
                 storage: await Promise.all(
@@ -1035,7 +1037,7 @@ async function ensureOfferConfigs() {
                             xbytes.parseSize(storage.supply),
                           )
                         ).supply,
-                        resourceId: `0x${storageId}`,
+                        resourceId: storageId,
                         details: JSON.stringify(storage.details),
                       } as const;
                     },
@@ -1049,8 +1051,8 @@ async function ensureOfferConfigs() {
                       ip.supply.length,
                     )
                   ).supply,
-                  resourceId: `0x${ipId}`,
-                  details: JSON.stringify(ip.details),
+                  resourceId: ipId,
+                  details: JSON.stringify({}),
                 },
                 bandwidth: {
                   ...bandwidth,
@@ -1060,8 +1062,8 @@ async function ensureOfferConfigs() {
                       xbytes.parseSize(bandwidth.supply),
                     )
                   ).supply,
-                  resourceId: `0x${bandwidthId}`,
-                  details: JSON.stringify(bandwidth.details),
+                  resourceId: bandwidthId,
+                  details: JSON.stringify({}),
                 },
               } as const satisfies Record<
                 ResourceType,
@@ -1085,10 +1087,8 @@ async function ensureOfferConfigs() {
         const offerId =
           providerArtifactsConfig?.offers[fluenceEnv]?.[offerName]?.id;
 
-        const getResourcePricesWithIds = createGetResourcePricesWithIds(
-          providerConfig,
-          resourcePrices,
-        );
+        const getResourcePricesWithIds =
+          createGetResourcePricesWithIds(resourcePrices);
 
         const resourcePricesWithIds: ResourcePricesWithIds = {
           cpu: await getResourcePricesWithIds("cpu"),
@@ -1098,11 +1098,11 @@ async function ensureOfferConfigs() {
           bandwidth: await getResourcePricesWithIds("bandwidth"),
         };
 
-        const dataCenterId = providerConfig.dataCenters[dataCenterName];
+        const dataCenter = (await getDataCentersFromChain())[dataCenterName];
 
         assert(
-          dataCenterId !== undefined,
-          `Unreachable. Data center ${dataCenterName} is not found in provider config. This must be validated during config validation`,
+          dataCenter !== undefined,
+          `Unreachable. It's validated in ${PROVIDER_CONFIG_FULL_FILE_NAME} schema that data center names are correct`,
         );
 
         return {
@@ -1112,7 +1112,7 @@ async function ensureOfferConfigs() {
           minProtocolVersion,
           maxProtocolVersion,
           resourcePricesWithIds,
-          dataCenter: { name: dataCenterName, id: `0x${dataCenterId}` },
+          dataCenter: { name: dataCenterName, ...dataCenter },
         } as const;
       },
     ),
@@ -1142,27 +1142,25 @@ type OfferArtifactsArgs = OffersArgs & {
   [OFFER_IDS_FLAG_NAME]: string | undefined;
 };
 
-function createGetResourcePricesWithIds(
-  providerConfig: ProviderConfig,
-  resourcePrices: ResourcePrices,
-) {
+function createGetResourcePricesWithIds(resourcePrices: ResourcePrices) {
   return async function getResourcePricesWithIds(resourceType: ResourceType) {
+    const resourcesFromChain = await getResourcesFromChain();
     return Promise.all(
       Object.entries(resourcePrices[resourceType]).map(
         async ([resourceName, price]) => {
-          const resource = providerConfig.resources[resourceType][resourceName];
+          const resource = resourcesFromChain[resourceType][resourceName];
 
           assert(
             resource !== undefined,
-            `Unreachable. Resource for ${resourceName} is not found in provider config`,
+            `Unreachable. It's validated in ${PROVIDER_CONFIG_FULL_FILE_NAME} schema that resource names are correct`,
           );
 
           return {
             ty: resourceTypeToOnChainResourceType[resourceType],
             resourceType,
             resourceName,
-            resourceId: `0x${resource.id}`,
-            price: await ptParse(numToStr(price)),
+            resourceId: resource.id,
+            price: await resourcePriceToBigInt(resourceType, price),
           } as const;
         },
       ),

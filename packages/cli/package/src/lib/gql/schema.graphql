@@ -40,7 +40,7 @@ query OfferDetails($where: Offer_filter) {
       id
       countryCode
       cityCode
-      # cityIndex
+      cityIndex
       tier
       certifications
     }
